@@ -80,7 +80,8 @@ class Client:
                  password: str,
                  max_reconnects: int = 10,
                  timeout: int = 10,
-                 FTP=ftplib.FTP) -> None:
+                 FTP=ftplib.FTP,
+                 encoding: str = 'utf-8') -> None:
         # pylint: disable=too-many-arguments
         self.access = Access()
         self.access.hostname = hostname
@@ -90,6 +91,7 @@ class Client:
 
         self.connection = None  # type: Optional[ftplib.FTP]
         self.last_pwd = None  # type: Optional[str]
+        self.encoding = encoding
         self.max_reconnects = max_reconnects
         self.timeout = timeout
 
@@ -110,7 +112,7 @@ class Client:
         if self.connection is None:
             conn_refused = None  # type: Optional[ConnectionRefusedError]
             try:
-                self.connection = self.FTP(timeout=self.timeout)
+                self.connection = self.FTP(timeout=self.timeout, encoding=self.encoding)
                 self.connection.connect(host=self.access.hostname, port=self.access.port)
                 self.connection.login(user=self.access.user, passwd=self.access.password)
             except ConnectionRefusedError as err:
