@@ -17,12 +17,12 @@ with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name='reconnecting_ftp',
-    version='1.0.12',
+    version='1.1.0',
     description='Reconnecting FTP client',
     long_description=long_description,
     url='https://github.com/Parquery/reconnecting-ftp',
     author='Marko Ristin',
-    author_email='marko@parquery.com',
+    author_email='marko@ristin.ch',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',

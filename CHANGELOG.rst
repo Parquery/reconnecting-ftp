@@ -1,3 +1,7 @@
+1.1.0
+=====
+* Propagated the parameter encoding (#5)
+
 1.0.12
 ======
 * Moved to github.com
