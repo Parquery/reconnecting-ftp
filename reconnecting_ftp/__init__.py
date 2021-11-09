@@ -112,7 +112,14 @@ class Client:
         if self.connection is None:
             conn_refused = None  # type: Optional[ConnectionRefusedError]
             try:
-                self.connection = self.FTP(timeout=self.timeout, encoding=self.encoding)
+                try:
+                    self.connection = self.FTP(timeout=self.timeout, encoding=self.encoding)
+                except TypeError as e:
+                    # The encoding argument was added in Python 3.9.
+                    if str(e).endswith("unexpected keyword argument 'encoding'"):
+                        self.connection = self.FTP(timeout=self.timeout)
+                    else:
+                        raise
                 self.connection.connect(host=self.access.hostname, port=self.access.port)
                 self.connection.login(user=self.access.user, passwd=self.access.password)
             except ConnectionRefusedError as err:
