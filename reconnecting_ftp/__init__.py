@@ -112,7 +112,10 @@ class Client:
         if self.connection is None:
             conn_refused = None  # type: Optional[ConnectionRefusedError]
             try:
-                try:
+                if sys.version_info >= (3, 9):
+                    self.connection = self.FTP(timeout=self.timeout, encoding=self.encoding)
+                else:
+                    self.connection = self.FTP(timeout=self.timeout)
                     self.connection = self.FTP(timeout=self.timeout, encoding=self.encoding)
                 except TypeError as e:
                     # The encoding argument was added in Python 3.9.
