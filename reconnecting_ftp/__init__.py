@@ -3,6 +3,7 @@
 Classes helping inputries to download from FTP servers.
 """
 
+import sys
 import ftplib
 import socket
 from typing import Optional, Callable, TypeVar, Union, List, Iterable, Tuple, Dict, Any  # pylint: disable=unused-import
@@ -116,13 +117,6 @@ class Client:
                     self.connection = self.FTP(timeout=self.timeout, encoding=self.encoding)
                 else:
                     self.connection = self.FTP(timeout=self.timeout)
-                    self.connection = self.FTP(timeout=self.timeout, encoding=self.encoding)
-                except TypeError as e:
-                    # The encoding argument was added in Python 3.9.
-                    if str(e).endswith("unexpected keyword argument 'encoding'"):
-                        self.connection = self.FTP(timeout=self.timeout)
-                    else:
-                        raise
                 self.connection.connect(host=self.access.hostname, port=self.access.port)
                 self.connection.login(user=self.access.user, passwd=self.access.password)
             except ConnectionRefusedError as err:
