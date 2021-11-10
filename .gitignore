@@ -7,3 +7,4 @@ venv/
 *.egg-info
 .tox
 dist/
+.coverage

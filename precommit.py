@@ -188,12 +188,17 @@ def main() -> int:
                 success = False
 
     print("Running unit tests...")
-    return_code = subprocess.call([sys.executable, '-m', 'unittest', 'discover', str(py_dir / 'tests')])
+    return_code = subprocess.call(
+        ["coverage", "run", "--source", "reconnecting_ftp", "-m", "unittest", "discover",
+         str(py_dir / "tests")])
+
     success = success and return_code == 0
 
     if not success:
         print("One or more checks failed.")
         return 1
+
+    subprocess.check_call(["coverage", "report"])
 
     return 0
 
