@@ -155,7 +155,8 @@ class Client:
                 assert self.connection is not None, "Expected connect() to either raise or create a connection"
                 return method(self.connection)
 
-            except (ConnectionRefusedError, socket.timeout, socket.gaierror, socket.herror, ftplib.error_temp,
+            except (ConnectionRefusedError, ConnectionAbortedError,
+                    socket.timeout, socket.gaierror, socket.herror, ftplib.error_temp,
                     EOFError) as err:
                 self.connection.close()
                 self.connection = None
