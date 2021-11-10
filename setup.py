@@ -37,6 +37,6 @@ setup(
     install_requires=[],
     extras_require={
         'test': ['pyftpdlib'],
-        'dev': ['mypy==0.910', 'pylint==2.11.1', 'yapf==0.20.2', 'pyftpdlib']
+        'dev': ['mypy==0.910', 'pylint==2.11.1', 'yapf==0.20.2', 'pyftpdlib', 'coverage>=4.5.1,<5']
     },
     py_modules=['reconnecting_ftp'])
