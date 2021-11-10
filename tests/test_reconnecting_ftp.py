@@ -51,7 +51,6 @@ class ThreadedFTPServer:
 
         self.thread = None  # type: Optional[threading.Thread]
         self.lock = threading.Lock()
-        self.__stop_flag = False
 
         authorizer = pyftpdlib.authorizers.DummyAuthorizer()
         authorizer.add_user(self.user, self.password, homedir=homedir.as_posix(), perm='elradfmwMT')
@@ -63,18 +62,11 @@ class ThreadedFTPServer:
         self.ftpd = pyftpdlib.servers.FTPServer((self.hostname, self.port), handler)
 
     def __enter__(self) -> None:
-        def serve_forever() -> None:
-            """ Serves the FTP clients in a poll loop and breaks as soon as __stop_flag was set """
-            while not self.__stop_flag:
-                with self.lock:
-                    self.ftpd.serve_forever(timeout=0.001, blocking=False)
-
-        self.thread = threading.Thread(target=serve_forever)
+        self.thread = threading.Thread(target=self.ftpd.serve_forever)
         self.thread.start()
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         with self.lock:
-            self.__stop_flag = True
             self.ftpd.close_all()
 
         self.thread.join()
@@ -97,7 +89,7 @@ class TestContext:
 
     def __enter__(self):
         self.homedir = pathlib.Path(tempfile.mkdtemp())
-        self.exit_stack.callback(callback=lambda: shutil.rmtree(self.homedir.as_posix()))
+        self.exit_stack.callback(lambda: shutil.rmtree(self.homedir.as_posix()))
 
         ftpd = ThreadedFTPServer(
             hostname=self.hostname,
