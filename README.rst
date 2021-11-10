@@ -1,6 +1,21 @@
 reonnecting_ftp
 ===============
 
+.. image:: https://github.com/Parquery/reconnecting-ftp/workflows/CI/badge.svg
+    :target: https://github.com/Parquery/reconnecting-ftp/actions?query=workflow%3ACI
+    :alt: Continuous integration
+
+.. image:: https://coveralls.io/repos/github/Parquery/reconnecting-ftp/badge.svg?branch=master
+    :target: https://coveralls.io/github/Parquery/reconnecting-ftp
+
+.. image:: https://badge.fury.io/py/reconnecting-ftp.svg
+    :target: https://badge.fury.io/py/reconnecting-ftp
+    :alt: PyPI - version
+
+.. image:: https://img.shields.io/pypi/pyversions/reconnecting-ftp.svg
+    :alt: PyPI - Python Version
+
+
 reconnecting_ftp provides a FTP client which wraps ftplib.FTP. It reconnects automatically to the server if it was
 disconnected, and remembers the last recorded working directory.
 
