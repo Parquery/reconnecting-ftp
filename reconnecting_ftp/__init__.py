@@ -3,6 +3,7 @@
 Classes helping inputries to download from FTP servers.
 """
 
+import sys
 import ftplib
 import socket
 from typing import Optional, Callable, TypeVar, Union, List, Iterable, Tuple, Dict, Any  # pylint: disable=unused-import
@@ -81,8 +82,13 @@ class Client:
                  max_reconnects: int = 10,
                  timeout: int = 10,
                  FTP=ftplib.FTP,
-                 encoding: str = 'utf-8') -> None:
+                 encoding: str = None) -> None:
         # pylint: disable=too-many-arguments
+        if encoding:
+            if sys.version_info < (3, 9):
+                raise TypeError("encoding argument not supported by ftplib.FTP before Python 3.9")
+            else:
+                self.encoding = encoding
         self.access = Access()
         self.access.hostname = hostname
         self.access.port = port
@@ -91,7 +97,6 @@ class Client:
 
         self.connection = None  # type: Optional[ftplib.FTP]
         self.last_pwd = None  # type: Optional[str]
-        self.encoding = encoding
         self.max_reconnects = max_reconnects
         self.timeout = timeout
 
@@ -112,7 +117,10 @@ class Client:
         if self.connection is None:
             conn_refused = None  # type: Optional[ConnectionRefusedError]
             try:
-                self.connection = self.FTP(timeout=self.timeout, encoding=self.encoding)
+                if hasattr(self, 'encoding'):
+                    self.connection = self.FTP(timeout=self.timeout, encoding=self.encoding)
+                else:
+                    self.connection = self.FTP(timeout=self.timeout)
                 self.connection.connect(host=self.access.hostname, port=self.access.port)
                 self.connection.login(user=self.access.user, passwd=self.access.password)
             except ConnectionRefusedError as err:
