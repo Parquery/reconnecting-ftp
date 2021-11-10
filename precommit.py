@@ -39,8 +39,9 @@ class Hasher:
         :return: path to the file holding the hash of the source text
         """
         if self.source_dir not in path.parents:
-            raise ValueError("Expected the path to be beneath the source directory {!r}, got: {!r}".format(
-                str(self.source_dir), str(path)))
+            raise ValueError(f"Expected the path to be beneath "
+                             f"the source directory {str(self.source_dir)!r}, "
+                             f"got: {str(path)!r}")
 
         return self.hash_dir / path.relative_to(self.source_dir).parent / (path.name + ".md5")
 
@@ -102,30 +103,29 @@ def check(path: pathlib.Path, py_dir: pathlib.Path, overwrite: bool) -> Union[No
             filename=str(path), style_config=str(style_config), print_diff=True)
 
         if changed:
-            report.append("Failed to yapf {}:\n{}".format(path, formatted))
+            report.append(f"Failed to yapf {path}:\n{formatted}")
     else:
         yapf.yapflib.yapf_api.FormatFile(filename=str(path), style_config=str(style_config), in_place=True)
 
     # mypy
-    proc = subprocess.Popen(
+    with subprocess.Popen(
         ['mypy', str(path), '--ignore-missing-imports'],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        universal_newlines=True)
-    stdout, stderr = proc.communicate()
-    if proc.returncode != 0:
-        report.append("Failed to mypy {}:\nOutput:\n{}\n\nError:\n{}".format(path, stdout, stderr))
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True) as proc:
+        stdout, stderr = proc.communicate()
+        if proc.returncode != 0:
+            report.append(f"Failed to mypy {path}:\nOutput:\n{stdout}\n\nError:\n{stderr}")
 
     # pylint
-    proc = subprocess.Popen(
-        ['pylint', str(path), '--rcfile={}'.format(py_dir / 'pylint.rc')],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        universal_newlines=True)
-
-    stdout, stderr = proc.communicate()
-    if proc.returncode != 0:
-        report.append("Failed to pylint {}:\nOutput:\n{}\n\nError:\n{}".format(path, stdout, stderr))
+    with subprocess.Popen(
+        ['pylint', str(path), '--rcfile={}'.format(py_dir / 'pylint.rc')],  # pylint: disable=consider-using-f-string
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True) as proc:
+        stdout, stderr = proc.communicate()
+        if proc.returncode != 0:
+            report.append(f"Failed to pylint {path}:\nOutput:\n{stdout}\n\nError:\n{stderr}")
 
     if len(report) > 0:
         return "\n".join(report)
@@ -168,28 +168,28 @@ def main() -> int:
         print("No file changed since the last pre-commit check.")
         return 0
 
-    print("There are {} file(s) that need to be checked...".format(len(changed_pths)))
+    print(f"There are {len(changed_pths)} file(s) that need to be checked...")
 
     success = True
 
     futures_paths = []  # type: List[Tuple[concurrent.futures.Future, pathlib.Path]]
     with concurrent.futures.ThreadPoolExecutor() as executor:
         for pth in changed_pths:
-            future = executor.submit(fn=check, path=pth, py_dir=py_dir, overwrite=overwrite)
+            future = executor.submit(check, path=pth, py_dir=py_dir, overwrite=overwrite)
             futures_paths.append((future, pth))
 
         for future, pth in futures_paths:
             report = future.result()
             if report is None:
-                print("Passed all checks: {}".format(pth))
+                print(f"Passed all checks: {pth}")
                 hasher.update_hash(path=pth)
             else:
-                print("One or more checks failed for {}:\n{}".format(pth, report))
+                print(f"One or more checks failed for {pth}:\n{report}")
                 success = False
 
     print("Running unit tests...")
-    retcode = subprocess.call(['python3', '-m', 'unittest', 'discover', str(py_dir / 'tests')])
-    success = success and retcode == 0
+    return_code = subprocess.call([sys.executable, '-m', 'unittest', 'discover', str(py_dir / 'tests')])
+    success = success and return_code == 0
 
     if not success:
         print("One or more checks failed.")

@@ -139,7 +139,7 @@ class TestReconnectingFTP(unittest.TestCase):
             with ftp:
                 pth = ctx.homedir / 'some-dir/some-file.txt'
                 pth.parent.mkdir(parents=True)
-                pth.write_text('tested')
+                pth.write_text('tested', encoding='utf-8')
 
                 ftp.cwd(dirname='/some-dir')
 
@@ -176,7 +176,7 @@ class TestReconnectingFTP(unittest.TestCase):
             with ftp:
                 pth = ctx.homedir / 'some-dir/some-file.txt'
                 pth.parent.mkdir(parents=True)
-                pth.write_text('tested')
+                pth.write_text('tested', encoding='utf-8')
 
                 ftp.cwd(dirname='/some-dir')
 
