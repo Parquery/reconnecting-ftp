@@ -10,9 +10,7 @@ from typing import Optional, Callable, TypeVar, Union, List, Iterable, Tuple, Di
 
 
 class Access:
-    """
-    Represents access information to the FTP server.
-    """
+    """Represent access information to the FTP server."""
 
     def __init__(self):
         self.hostname = ''
@@ -26,7 +24,7 @@ T = TypeVar('T')
 
 def mlst(connection: ftplib.FTP, filename: str, facts: Optional[List[str]] = None):
     """
-    Executes mlst command on the server.
+    Execute mlst command on the server.
 
     :param connection: to the server
     :param filename: filename
@@ -69,8 +67,10 @@ def mlst(connection: ftplib.FTP, filename: str, facts: Optional[List[str]] = Non
 
 class Client:
     """
-    Reconnects to the FTP server if the connection has been closed. The current working directory is cached
-    in between the sessions. When you re-connect, it changes first to the last available CWD.
+    Reconnect to the FTP server if the connection has been closed. 
+    
+    The current working directory is cached in between the sessions. When you re-connect, it changes first to 
+    the last available CWD.
     """
 
     # pylint: disable=too-many-public-methods
@@ -109,7 +109,7 @@ class Client:
         self.close()
 
     def connect(self) -> None:
-        """ Connects to the server if not already connected. """
+        """Connect to the server if not already connected."""
         if self.connection is not None and self.connection.file is None:
             self.connection.close()
             self.connection = None
@@ -134,13 +134,13 @@ class Client:
                 self.connection.cwd(self.last_pwd)
 
     def close(self) -> None:
-        """ Closes the connection. """
+        """Close the connection."""
         if self.connection is not None:
             self.connection.close()
 
     def __wrap_reconnect(self, method: Callable[[ftplib.FTP], T]) -> T:
         """
-        Dispatches the method to the connection and reconnects if needed.
+        Dispatche the method to the connection and reconnects if needed.
 
         :param method: to be dispatched
         :return: response from the method
@@ -169,7 +169,7 @@ class Client:
 
     def reconnecting(self, method: Callable[[ftplib.FTP], T]) -> T:
         """
-        Dispatches the method to the connection, reconnects if needed and observes the last working directory.
+        Dispatch the method to the connection, reconnects if needed and observes the last working directory.
 
         :param method: to be dispatched
         :return: response from the method
@@ -179,69 +179,69 @@ class Client:
         return resp
 
     def abort(self):
-        """ See ftplib documentation """
+        """See ftplib documentation."""
         return self.reconnecting(method=lambda conn: conn.abort())
 
     def sendcmd(self, cmd):
-        """ See ftplib documentation """
+        """See ftplib documentation."""
         return self.reconnecting(method=lambda conn: conn.sendcmd(cmd))
 
     def voidcmd(self, cmd):
-        """ See ftplib documentation """
+        """See ftplib documentation."""
         return self.reconnecting(method=lambda conn: conn.voidcmd(cmd))
 
     def sendport(self, host, port):
-        """ See ftplib documentation """
+        """See ftplib documentation."""
         return self.reconnecting(method=lambda conn: conn.sendport(host, port))
 
     def sendeprt(self, host, port):
-        """ See ftplib documentation """
+        """See ftplib documentation."""
         return self.reconnecting(method=lambda conn: conn.sendeprt(host, port))
 
     def makeport(self):
-        """ See ftplib documentation """
+        """See ftplib documentation."""
         return self.reconnecting(method=lambda conn: conn.makeport())
 
     def makepasv(self):
-        """ See ftplib documentation """
+        """See ftplib documentation."""
         return self.reconnecting(method=lambda conn: conn.makepasv())
 
     def ntransfercmd(self, cmd, rest=None):
-        """ See ftplib documentation """
+        """See ftplib documentation."""
         return self.reconnecting(method=lambda conn: conn.ntransfercmd(cmd, rest))
 
     def transfercmd(self, cmd, rest=None):
-        """ See ftplib documentation """
+        """See ftplib documentation."""
         return self.reconnecting(method=lambda conn: conn.transfercmd(cmd, rest))
 
     def retrbinary(self, cmd, callback, blocksize=8192, rest=None):
-        """ See ftplib documentation """
+        """See ftplib documentation."""
         return self.reconnecting(method=lambda conn: conn.retrbinary(cmd, callback, blocksize, rest))
 
     def retrlines(self, cmd, callback=None):
-        """ See ftplib documentation """
+        """See ftplib documentation."""
         return self.reconnecting(method=lambda conn: conn.retrlines(cmd, callback))
 
     def storbinary(self, cmd, fp, blocksize=8192, callback=None, rest=None):
-        """ See ftplib documentation """
+        """See ftplib documentation."""
         # pylint: disable=invalid-name, too-many-arguments
         return self.reconnecting(method=lambda conn: conn.storbinary(cmd, fp, blocksize, callback, rest))
 
     def storlines(self, cmd, fp, callback=None):
-        """ See ftplib documentation """
+        """See ftplib documentation."""
         # pylint: disable=invalid-name
         return self.reconnecting(method=lambda conn: conn.storlines(cmd, fp, callback))
 
     def acct(self, password):
-        """ See ftplib documentation """
+        """See ftplib documentation."""
         return self.reconnecting(method=lambda conn: conn.acct(password))
 
     def nlst(self, *args):
-        """ See ftplib documentation """
+        """See ftplib documentation."""
         return self.reconnecting(method=lambda conn: conn.nlst(*args))
 
     def dir(self, *args):
-        """ See ftplib documentation """
+        """See ftplib documentation."""
         return self.reconnecting(method=lambda conn: conn.dir(*args))
 
     def mlsd(self, path="", facts=None) -> List[Tuple[str, Dict[str, Any]]]:
@@ -258,40 +258,40 @@ class Client:
         return self.reconnecting(method=lambda conn: list(conn.mlsd(path, facts_lst)))
 
     def rename(self, fromname, toname):
-        """ See ftplib documentation """
+        """See ftplib documentation."""
         return self.reconnecting(method=lambda conn: conn.rename(fromname, toname))
 
     def delete(self, filename):
-        """ See ftplib documentation """
+        """See ftplib documentation."""
         return self.reconnecting(method=lambda conn: conn.delete(filename))
 
     def cwd(self, dirname):
-        """ See ftplib documentation """
+        """See ftplib documentation."""
         return self.reconnecting(method=lambda conn: conn.cwd(dirname))
 
     def size(self, filename):
-        """ See ftplib documentation """
+        """See ftplib documentation."""
         return self.reconnecting(method=lambda conn: conn.size(filename))
 
     def mkd(self, dirname):
-        """ See ftplib documentation """
+        """See ftplib documentation."""
         return self.reconnecting(method=lambda conn: conn.mkd(dirname))
 
     def rmd(self, dirname):
-        """ See ftplib documentation """
+        """See ftplib documentation."""
         return self.reconnecting(method=lambda conn: conn.rmd(dirname))
 
     def pwd(self):
-        """ See ftplib documentation """
+        """See ftplib documentation."""
         self.last_pwd = self.__wrap_reconnect(method=lambda conn: conn.pwd())
         return self.last_pwd
 
     def quit(self):
-        """ See ftplib documentation """
+        """See ftplib documentation."""
         resp = self.reconnecting(method=lambda conn: conn.quit())
         self.connection = None
         return resp
 
     def mlst(self, filename: str, facts: Optional[List[str]] = None):
-        """ Executes the mlst command """
+        """Execute the mlst command."""
         return self.reconnecting(method=lambda conn: mlst(connection=conn, filename=filename, facts=facts))
