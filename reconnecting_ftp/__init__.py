@@ -67,9 +67,9 @@ def mlst(connection: ftplib.FTP, filename: str, facts: Optional[List[str]] = Non
 
 class Client:
     """
-    Reconnect to the FTP server if the connection has been closed. 
-    
-    The current working directory is cached in between the sessions. When you re-connect, it changes first to 
+    Reconnect to the FTP server if the connection has been closed.
+
+    The current working directory is cached in between the sessions. When you re-connect, it changes first to
     the last available CWD.
     """
 
@@ -158,7 +158,8 @@ class Client:
                 assert self.connection is not None, "Expected connect() to either raise or create a connection"
                 return method(self.connection)
 
-            except (ConnectionRefusedError, ConnectionAbortedError, socket.timeout, socket.gaierror, socket.herror,
+            except (BrokenPipeError, ConnectionRefusedError, ConnectionAbortedError,
+                    socket.timeout, socket.gaierror, socket.herror,
                     ftplib.error_temp, EOFError) as err:
                 if self.connection is not None:
                     self.connection.close()
