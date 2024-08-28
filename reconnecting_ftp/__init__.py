@@ -37,17 +37,17 @@ def mlst(connection: ftplib.FTP, filename: str, facts: Optional[List[str]] = Non
     if fact_lst:
         connection.sendcmd("OPTS MLST " + ";".join(fact_lst) + ";")
 
-    resp = connection.sendcmd("MLST {}".format(filename))
+    resp = connection.sendcmd(f"MLST {filename}")
     lines = resp.split('\n')
 
     if len(lines) <= 1:
-        raise ftplib.Error("Unexpected number of lines in an MLST response: {!r}".format(resp))
+        raise ftplib.Error(f"Unexpected number of lines in an MLST response: {resp!r}")
 
     line = lines[1].lstrip(' ')
 
     line_parts = line.split(' ')
     if len(line_parts) != 2:
-        raise ftplib.Error("Unexpected partition of MLST fact line by space: {!r}".format(resp))
+        raise ftplib.Error(f"Unexpected partition of MLST fact line by space: {resp!r}")
 
     facts_found, pth = line_parts
     facts_found = facts_found.rstrip(';')
@@ -57,7 +57,7 @@ def mlst(connection: ftplib.FTP, filename: str, facts: Optional[List[str]] = Non
     for part in parts:
         fact_parts = part.split('=')
         if len(fact_parts) != 2:
-            raise ftplib.Error("Unexpected partition of MLST fact line by equal sign: {!r}".format(resp))
+            raise ftplib.Error(f"Unexpected partition of MLST fact line by equal sign: {resp!r}")
 
         key, value = fact_parts
         entry[key.lower()] = value
@@ -74,21 +74,23 @@ class Client:
     """
 
     # pylint: disable=too-many-public-methods
-    def __init__(self,
-                 hostname: str,
-                 port: int,
-                 user: str,
-                 password: str,
-                 max_reconnects: int = 10,
-                 timeout: int = 10,
-                 FTP=ftplib.FTP,
-                 encoding: str = None) -> None:
+    def __init__(
+            self,
+            hostname: str,
+            port: int,
+            user: str,
+            password: str,
+            max_reconnects: int = 10,
+            timeout: int = 10,
+            FTP=ftplib.FTP,  # pylint: disable=invalid-name
+            encoding: Optional[str] = None) -> None:
         # pylint: disable=too-many-arguments
-        if encoding:
+        if encoding is not None:
             if sys.version_info < (3, 9):
                 raise TypeError("encoding argument not supported by ftplib.FTP before Python 3.9")
-            else:
-                self.encoding = encoding
+
+        self.encoding = encoding
+
         self.access = Access()
         self.access.hostname = hostname
         self.access.port = port
@@ -117,7 +119,7 @@ class Client:
         if self.connection is None:
             conn_refused = None  # type: Optional[ConnectionRefusedError]
             try:
-                if hasattr(self, 'encoding'):
+                if self.encoding is not None:
                     self.connection = self.FTP(timeout=self.timeout, encoding=self.encoding)
                 else:
                     self.connection = self.FTP(timeout=self.timeout)
@@ -127,10 +129,11 @@ class Client:
                 conn_refused = err
 
             if conn_refused:
-                raise ConnectionRefusedError("Failed to connect to {}:{}: {}".format(
-                    self.access.hostname, self.access.port, conn_refused))
+                raise ConnectionRefusedError(f"Failed to connect to "
+                                             f"{self.access.hostname}:{self.access.port}: {conn_refused}")
 
             if self.last_pwd is not None:
+                assert self.connection is not None
                 self.connection.cwd(self.last_pwd)
 
     def close(self) -> None:
@@ -155,17 +158,19 @@ class Client:
                 assert self.connection is not None, "Expected connect() to either raise or create a connection"
                 return method(self.connection)
 
-            except (ConnectionRefusedError, ConnectionAbortedError,
-                    socket.timeout, socket.gaierror, socket.herror, ftplib.error_temp,
-                    EOFError) as err:
-                self.connection.close()
-                self.connection = None
+            except (ConnectionRefusedError, ConnectionAbortedError, socket.timeout, socket.gaierror, socket.herror,
+                    ftplib.error_temp, EOFError) as err:
+                if self.connection is not None:
+                    self.connection.close()
+                    self.connection = None
+
                 last_err = err
 
         assert last_err is not None, 'Expected either an error or a previous return'
-        raise ftplib.error_temp(
-            "Failed to execute a command on {}:{} after {} reconnect(s), the last error was: {}".format(
-                self.access.hostname, self.access.port, self.max_reconnects, last_err))
+        raise ftplib.error_temp(f"Failed to execute a command "
+                                f"on {self.access.hostname}:{self.access.port} "
+                                f"after {self.max_reconnects} reconnect(s), "
+                                f"the last error was: {last_err}")
 
     def reconnecting(self, method: Callable[[ftplib.FTP], T]) -> T:
         """

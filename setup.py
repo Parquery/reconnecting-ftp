@@ -15,29 +15,28 @@ here = os.path.abspath(os.path.dirname(__file__))  # pylint: disable=invalid-nam
 with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()  # pylint: disable=invalid-name
 
-setup(
-    name='reconnecting_ftp',
-    version='1.1.1',
-    description='Reconnecting FTP client',
-    long_description=long_description,
-    url='https://github.com/Parquery/reconnecting-ftp',
-    author='Marko Ristin',
-    author_email='marko@ristin.ch',
-    classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10',
-    ],
-    keywords='ftplib reconnect retry robust ftp client',
-    packages=find_packages(exclude=['tests*']),
-    install_requires=[],
-    extras_require={
-        'test': ['pyftpdlib'],
-        'dev': ['mypy==0.910', 'pylint==2.11.1', 'yapf==0.20.2', 'pyftpdlib', 'coverage>=4.5.1,<5']
-    },
-    py_modules=['reconnecting_ftp'])
+setup(name='reconnecting_ftp',
+      version='1.1.1',
+      description='Reconnecting FTP client',
+      long_description=long_description,
+      url='https://github.com/Parquery/reconnecting-ftp',
+      author='Marko Ristin',
+      author_email='marko@ristin.ch',
+      classifiers=[
+          'Development Status :: 5 - Production/Stable',
+          'Intended Audience :: Developers',
+          'License :: OSI Approved :: MIT License',
+          'Programming Language :: Python :: 3.7',
+          'Programming Language :: Python :: 3.8',
+          'Programming Language :: Python :: 3.9',
+          'Programming Language :: Python :: 3.10',
+          'Programming Language :: Python :: 3.11',
+      ],
+      keywords='ftplib reconnect retry robust ftp client',
+      packages=find_packages(exclude=['tests*']),
+      install_requires=[],
+      extras_require={
+          'test': ['pyftpdlib'],
+          'dev': ['mypy==1.4.1', 'pylint==2.17.7', 'yapf==0.40.2', 'pyftpdlib', 'coverage==7.2.7']
+      },
+      py_modules=['reconnecting_ftp'])

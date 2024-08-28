@@ -91,13 +91,12 @@ class TestContext:
         self.homedir = pathlib.Path(tempfile.mkdtemp())
         self.exit_stack.callback(lambda: shutil.rmtree(self.homedir.as_posix()))
 
-        ftpd = ThreadedFTPServer(
-            hostname=self.hostname,
-            port=self.port,
-            timeout=self.timeout,
-            homedir=self.homedir,
-            user=self.user,
-            password=self.password)
+        ftpd = ThreadedFTPServer(hostname=self.hostname,
+                                 port=self.port,
+                                 timeout=self.timeout,
+                                 homedir=self.homedir,
+                                 user=self.user,
+                                 password=self.password)
 
         ftpd.__enter__()
         self.exit_stack.push(ftpd)
@@ -111,7 +110,6 @@ class TestContext:
 class TestReconnectingFTP(unittest.TestCase):
     # pylint: disable=missing-docstring
     def test_connect(self):
-        # pylint: disable=no-self-use
         with TestContext(port=find_free_port(), timeout=1) as ctx:
             ftp = reconnecting_ftp.Client(hostname=ctx.hostname, port=ctx.port, user=ctx.user, password=ctx.password)
 

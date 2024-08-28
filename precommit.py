@@ -99,8 +99,9 @@ def check(path: pathlib.Path, py_dir: pathlib.Path, overwrite: bool) -> Union[No
 
     # yapf
     if not overwrite:
-        formatted, _, changed = yapf.yapflib.yapf_api.FormatFile(
-            filename=str(path), style_config=str(style_config), print_diff=True)
+        formatted, _, changed = yapf.yapflib.yapf_api.FormatFile(filename=str(path),
+                                                                 style_config=str(style_config),
+                                                                 print_diff=True)
 
         if changed:
             report.append(f"Failed to yapf {path}:\n{formatted}")
@@ -108,11 +109,10 @@ def check(path: pathlib.Path, py_dir: pathlib.Path, overwrite: bool) -> Union[No
         yapf.yapflib.yapf_api.FormatFile(filename=str(path), style_config=str(style_config), in_place=True)
 
     # mypy
-    with subprocess.Popen(
-        ['mypy', str(path), '--ignore-missing-imports'],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            universal_newlines=True) as proc:
+    with subprocess.Popen(['mypy', str(path), '--ignore-missing-imports'],
+                          stdout=subprocess.PIPE,
+                          stderr=subprocess.PIPE,
+                          universal_newlines=True) as proc:
         stdout, stderr = proc.communicate()
         if proc.returncode != 0:
             report.append(f"Failed to mypy {path}:\nOutput:\n{stdout}\n\nError:\n{stderr}")
@@ -139,11 +139,10 @@ def main() -> int:
     """
     # pylint: disable=too-many-locals
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--overwrite",
-        help="Overwrites the unformatted source files with the well-formatted code in place. "
-        "If not set, an exception is raised if any of the files do not conform to the style guide.",
-        action='store_true')
+    parser.add_argument("--overwrite",
+                        help="Overwrites the unformatted source files with the well-formatted code in place. "
+                        "If not set, an exception is raised if any of the files do not conform to the style guide.",
+                        action='store_true')
     args = parser.parse_args()
 
     overwrite = args.overwrite
