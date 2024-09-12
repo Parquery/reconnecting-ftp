@@ -16,7 +16,7 @@ with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()  # pylint: disable=invalid-name
 
 setup(name='reconnecting_ftp',
-      version='1.1.1',
+      version='1.1.2',
       description='Reconnecting FTP client',
       long_description=long_description,
       url='https://github.com/Parquery/reconnecting-ftp',
