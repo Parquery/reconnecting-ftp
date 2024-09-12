@@ -1,3 +1,10 @@
+1.1.2
+=====
+* Added logic to retry on ConnectionError (#21)
+* Added logic to retry on ``BrokenPipeError`` (#19)
+* Removed support for Python 3.6 and added for 3.11 (#20)
+* Added support for Python 3.10 (#16)
+
 1.1.1
 =====
 * Made encoding keyword backward compatible (#8)
